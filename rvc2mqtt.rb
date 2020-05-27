@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'yaml'
+require 'json'
 require 'mqtt'
 require 'open3'
 require './rvc_parser'
@@ -48,6 +49,10 @@ Open3.popen3('/usr/bin/candump -ta can0') do |stdin, stdout, stderr, wait_thr|
   while line = stdout.gets.strip do
     message = parse_candump_line(line)
     decoded = rvc_spec.decode(message[:dgn], message[:data])
-    p decoded
+    decoded['timestamp'] = message[:time]
+
+    topic = 'rvc/' + decoded['name']
+    topic += '/' + decoded['instance'].to_s if decoded['instance']
+    mqtt.publish(topic + '/json', decoded.sort.to_h.to_json, false)
   end
 end
