@@ -3,10 +3,16 @@ require './bitmath'
 
 class RVCParser
 
-  @@rvc_spec_location = 'rvc-spec.yml'
+  @@rvc_spec_location = 'rvc-spec.yaml'
 
   def initialize()
-    @rvc_spec = YAML.load(File.read(@@rvc_spec_location))
+    yaml_data = File.read(@@rvc_spec_location)
+
+    # Some keys in the yaml file are bitfields (e.g. 001) and need to
+    # be parsed as strings instead of integers, to avoid losing the
+    # leading zeros. Add quotes around all keys that begin with a digit.
+    yaml_data = yaml_data.gsub(/(\s)(\d+):/, '\1"\2":')
+    @rvc_spec = YAML.load(yaml_data)
   end
 
 
@@ -57,7 +63,7 @@ class RVCParser
       end
 
       if values = param['values']
-        definition = values[value] || 'undefined'
+        definition = values[value.to_s] || 'undefined'
         result["#{name}_definition"] = definition
       end
 
@@ -73,7 +79,7 @@ class RVCParser
   #
   #   "Manufacturer Code (LSB) in/out" => "manufacturer_code_lsb_in_out"
   def sanitize_string(str)
-    str ? str.downcase.tr(' /', '_').tr('()', '') : nil
+    str ? str.downcase.tr(' ', '_').tr('()', '') : nil
   end
 
   # Reverse a hex string's endianness.
