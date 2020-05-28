@@ -54,5 +54,8 @@ Open3.popen3('/usr/bin/candump -ta can0') do |stdin, stdout, stderr, wait_thr|
     topic = 'rvc/' + decoded['name']
     topic += '/' + decoded['instance'].to_s if decoded['instance']
     mqtt.publish(topic + '/json', decoded.sort.to_h.to_json, false)
+    decoded.each do | key, value |
+      mqtt.publish(topic + '/' + key, value, false)
+    end
   end
 end

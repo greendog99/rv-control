@@ -79,7 +79,7 @@ class RVCParser
   #
   #   "Manufacturer Code (LSB) in/out" => "manufacturer_code_lsb_in_out"
   def sanitize_string(str)
-    str ? str.downcase.tr(' ', '_').tr('()', '') : nil
+    str ? str.downcase.tr(' /', '_').tr('()', '') : nil
   end
 
   # Reverse a hex string's endianness.
