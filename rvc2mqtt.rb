@@ -7,8 +7,6 @@ require 'open3'
 require './rvc_parser'
 require './bitmath'
 
-debug = true
-
 rvc_spec_location = './rvc-spec.yml'
 mqtt_address = 'localhost'
 
