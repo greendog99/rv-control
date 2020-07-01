@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 require 'yaml'
 require 'json'
@@ -8,7 +8,7 @@ require './rvc_parser'
 require './bitmath'
 
 rvc_spec_location = './rvc-spec.yml'
-mqtt_address = 'localhost'
+mqtt_address = 'r2'
 
 # Parse the text output of candump and decode various information as
 # described in RV-C Revised Application Layer section 3.2.
