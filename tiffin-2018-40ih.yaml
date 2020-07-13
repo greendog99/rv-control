@@ -1,9 +1,0 @@
----
-
-DC_DIMMER_STATUS_3:
-  translations:
-    instance: instance
-    operating_status_brightness: brightness
-  instances:
-    1:
-      name: Main Ceiling

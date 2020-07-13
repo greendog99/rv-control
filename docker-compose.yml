@@ -1,8 +1,0 @@
-version: '3'
-
-services:
-  rvc2mqtt:
-    build: .
-    container_name: rvc2mqtt
-    restart: unless-stopped
-    network_mode: host
