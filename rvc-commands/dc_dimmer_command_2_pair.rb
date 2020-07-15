@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 #
 # Send a pair of DC_DIMMER_COMMAND_2 commands (off/on)
+#
+# See RV-C Specification, Table 6.25.6a
 
 require 'optparse'
 
@@ -26,22 +28,16 @@ dgn = '1FEDB'
 pri = '0x6'
 src = '0x99'
 
-stop_command = 3
+# Commands are hex, but since they are less than 10, no conversion is needed.
+stop_command = 3        # 0x03 OFF: Set dimmer brightness directly to 0%
 stop_brightness = 0
 stop_delay = 0
 
-start_command = 1
-start_brightness = 100
-
-# See RV-C Specification, section 3.2
-# dgn_hi = dgn.slice(0..2)
-# dgn_lo = dgn.slice(3..4)
-# bits = sprintf('%b0%b%b%b', pri.to_i(16), dgn_hi.to_i(16), dgn_lo.to_i(16), src.to_i(16))
+start_command = 5       # 0x05 Toggle: Toggle brightness between 0% and desired value
+start_brightness = 200  # 0xC8 = 200 in 1/2% increments
 
 bits = sprintf('%b0%b%b', pri.to_i(16), dgn.to_i(16), src.to_i(16))
 hex_id = bits.to_i(2).to_s(16)
-
-# See RV-C Specification, Table 6.25.6a
 
 # Stop the alternate instance
 hex_data = sprintf('%02xFF%02x%02x%02x00FFFF',
@@ -49,13 +45,15 @@ hex_data = sprintf('%02xFF%02x%02x%02x00FFFF',
                    stop_brightness,
                    stop_command,
                    stop_delay)
-system "cansend can0 #{hex_id}##{hex_data}"
+puts "cansend can0 #{hex_id}##{hex_data}"
+# system "cansend can0 #{hex_id}##{hex_data}"
 
 # Start the primary instance
 hex_data = sprintf('%02xFF%02x%02x%02x00FFFF',
                    options[:instance].to_i,
                    start_brightness,
                    start_command,
-                   options[:delay].to_i)
-system "cansend can0 #{hex_id}##{hex_data}"
+                   options[:duration].to_i)
+puts "cansend can0 #{hex_id}##{hex_data}"
+# system "cansend can0 #{hex_id}##{hex_data}"
 

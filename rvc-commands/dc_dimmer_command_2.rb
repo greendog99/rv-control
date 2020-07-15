@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 #
-# Send DC_DIMMER_COMMAND_2
+# Send rvc DC_DIMMER_COMMAND_2 to the canbus.
+#
+# See RV-C Specification, Table 6.25.6a
 
 require 'optparse'
 
@@ -28,14 +30,18 @@ dgn = '1FEDB'
 pri = '0x6'
 src = '0x99'
 
+# NOTE: These commented lines are the old (CoachProxy) way of doing things.
+# The new way (dgn.to_i(16)) is cleaner and SHOULD work, but hasn't been tested
+# in all situations yet.
+#
 # See RV-C Specification, section 3.2
 # dgn_hi = dgn.slice(0..2)
 # dgn_lo = dgn.slice(3..4)
 # bits = sprintf('%b0%b%b%b', pri.to_i(16), dgn_hi.to_i(16), dgn_lo.to_i(16), src.to_i(16))
+
 bits = sprintf('%b0%b%b', pri.to_i(16), dgn.to_i(16), src.to_i(16))
 hex_id = bits.to_i(2).to_s(16)
 
-# See RV-C Specification, Table 6.25.6a
 hex_data = sprintf('%02xFF%02x%02x%02x00FFFF',
                    options[:instance].to_i,
                    options[:brightness].to_i * 2,
