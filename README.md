@@ -1,17 +1,32 @@
-# Notes
+# RV Control
 
-# Raspberry Pi 3B Setup
+A re-write from scratch of
+[CoachProxyOS](https://github.com/rvc-proxy/coachproxy-os/)
+scripts to monitor and send RV-C messages.
+
+Raspberry Pi 3B Setup
+---------------------
 
 Install latest Raspbian Buster lite image.
 
+~~~
 sudo apt -y install ruby-dev
 sudo gem install json yaml mqtt
+~~~
 
+RV-C Decoding
+-------------
 
-RVC Control
------------
+The `rvc2mqtt.rb` script in the `rvc-to-mqtt/` directory listens on the canbus,
+decodes all RV-C messages, and publishes the decoded result to an MQTT
+server. The `rvc-spec.yaml` file provides the instructions for decoding
+the RV-C spec.
 
-Programs in the `rvc` directory are used to send commands to the RVC canbus.
+RV-C Control
+------------
+
+Programs in the `rvc-commands` directory are used to send commands to the RVC
+canbus.
 
 Programs:
 
