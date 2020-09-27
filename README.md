@@ -16,13 +16,13 @@ understanding how to communicate with RV-C devices.
 What it does
 ------------
 
-Monitoring:
+[Monitoring](rvc-monitor/):
 * Receives raw RV-C messages from the CAN bus.
 * Decodes those messages into human-readable JSON objects according to the RV-C specification.
 * Decodes additional, vendor-proprietary RV-C messages (currently just a few custom messages used by Spyder Controls).
 * Publishes decoded messages to an MQTT message broker.
 
-Controlling:
+[Controlling](rvc-control/):
 * Receives commands from the MQTT Broker.
 * Encodes those commands into RV-C messages.
 * Sends the messages onto the CAN bus.
@@ -33,6 +33,8 @@ What it does NOT do
 * Interpretation of messages (e.g. this message means "Hallway Light").
 * Any kind of logic (e.g. do something when a certain message is recevied).
 * Any kind of user interface.
+
+This and other functionality will be developed as a separate project.
 
 System overview
 ---------------
@@ -45,8 +47,17 @@ components may be developed at a future date.
 Requirements
 ------------
 
-* A computer with a CAN bus network card. This will almost certainly be a
-Raspberry Pi 3B computer with a PiCAN2 board.
+* A computer with a CAN bus network card. This will almost always be a
+Raspberry Pi 3B computer with a PiCAN2 board. Install the canbus utilities:
+  ~~~
+  sudo apt -y install can-utils
+  ~~~
+  Add the following to the end of /boot/config.txt to enable the canbus card:
+  ~~~
+  dtparam=spi=on
+  dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25
+  dtoverlay=spi-bcm2835-overlay
+  ~~~
 * The latest Raspberry Pi OS operating system image (Buster Lite is used for
 development).
 * The Ruby development environment and supporting Gems:
@@ -60,60 +71,8 @@ Raspberry Pi, and can be installed easily:
   sudo apt -y install mosquitto
   ~~~
 
-# Software Documentation
+# Component Documentation
 
-More details coming soon.
+* [RV-C Monitor](rvc-monitor/)
+* [RV-C Control](rvc-control/)
 
-RV-C Monitoring
----------------
-
-The `rvc2mqtt.rb` script in the `rvc-to-mqtt/` directory listens on the canbus,
-decodes all RV-C messages, and publishes the decoded result to an MQTT server.
-The `rvc-spec.yaml` file provides the instructions for decoding the RV-C spec.
-
-A great way to view the decoded messages is with the [MQTT
-Explorer](http://mqtt-explorer.com/) application. Just connect to the MQTT
-broker and monitor all the RV-C messages decoded from the CAN bus.
-
-![MQTT Explorer Sample](images/mqtt_explorer.png?raw=true)
-
-The intent is to publish the raw RV-C data in an easily consumable format so
-that other tools can then interpret and if needed republish the data in other
-formats. For example, a program might subscribe to MQTT messages on topic
-`DC_DIMMER_STATUS_3/1` and publish (under a different top-level MQTT topic) a
-message such as `Main_Ceiling_Light`.
-
-The fully decoded message is published as a JSON object under the `json`
-parameter, and each individual component is published as strings or numbers.
-Individual parameters makes it easier for programs to monitor a specific
-paramenter, such as `operating_status_brightness` for a light. However, if multiple
-parameters are needed, they must be extracted from the combined `json` parameter to ensure
-they are all from the same RV-C message. For example, calculating a holding tank level
-requires dividing the `relative_level` by the `resolution`.
-
-RV-C Controlling
-----------------
-
-Programs in the `rvc-commands` directory are used to send commands to the RV-C
-canbus. Currently these are command-line executable scripts, but the long-term
-goal is to send RV-C commands based on incoming MQTT command messages.
-
-`dc_dimmer_command_2.rb` - Sends a DC_DIMMER_COMMAND_2 (1FEDB) message to the
-canbus. Although the RV-C specification indicates this command is intended for
-dimmable lights, Spyder Controls uses it to control many other DC loads,
-including the water pump, ceiling fans, and more.
-
-`dc_dimmer_command_2_pair.rb` - For bidirectional DC devices such as vent lids,
-TV lifts, and window shades, Spyder Controls often uses a pair of DC Dimmer
-IDs, each controlling motion in one direction. An `OFF` message is sent to the
-_undesired_ direction, to stop any existing motion, and a `Toggle` message is
-sent to the desired direction to initiate movement for a defined duration. If
-the same command is sent again, the second `Toggle` will stop the current
-motion without reversing the direction of the device, to stop a shade partway
-for example.
-
-`thermostat_command.rb`
-
-`window_shade_command.rb`
-
-`ac_load_command.rb`

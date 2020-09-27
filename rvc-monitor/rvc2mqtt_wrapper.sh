@@ -4,7 +4,7 @@
 # it should die. This should be replaced with a systemd unit file or other
 # more robust solution.
 
-cd /home/mfischer/rv-control/rvc-to-mqtt
+cd /home/mfischer/rv-control/rvc-monitor
 
 while true
 do
