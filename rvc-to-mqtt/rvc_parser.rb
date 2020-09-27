@@ -1,5 +1,5 @@
 require 'yaml'
-require_local 'bitmath'
+require_relative 'bitmath'
 
 class RVCParser
   @@rvc_spec_location = 'rvc-spec.yaml'
