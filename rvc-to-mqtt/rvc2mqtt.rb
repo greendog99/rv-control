@@ -1,11 +1,14 @@
 #!/usr/bin/env ruby
+#
+# This command-line executable connects to a CAN bus, receives and decodes RV-C
+# messages, and publishes them to an MQTT message broker.
 
 require 'yaml'
 require 'json'
 require 'mqtt'
 require 'open3'
-require './rvc_parser'
-require './bitmath'
+require_relative 'rvc_parser'
+require_relative 'bitmath'
 
 rvc_spec_location = './rvc-spec.yml'
 mqtt_address = 'r2'
@@ -13,24 +16,21 @@ mqtt_address = 'r2'
 # Parse the text output of candump and decode various information as
 # described in RV-C Revised Application Layer section 3.2.
 #
-# Sample input:
-# (1550629697.810979)  can0  19FFD442   [8]  01 02 F7 FF FF FF FF FF
-#
+# Sample candump line:
+#   (1550629697.810979)  can0  19FFD442   [8]  01 02 F7 FF FF FF FF FF
 def parse_candump_line(line)
   columns = line.split(/\s+/)
-  time = columns[0].gsub(/[^0-9]/, '')  # timestamp in microseconds
+  time = columns[0].gsub(/[^0-9]/, '') # in microseconds
   prio = columns[2].hex.bitrange(26..28, bytes: 8)
   dgn  = columns[2].hex.bitrange(8..24, bytes: 8)
+  dgn_str = dgn.to_s(16).upcase.rjust(5, '0')  # Change back to hex, e.g "0E1F7"
   src  = columns[2].hex.bitrange(0..7, bytes: 8)
-  dgn = dgn.to_s(16).upcase.rjust(5, '0')  # Change back to hex, e.g "0E1F7"
   len  = columns[3].gsub(/[^0-9]/, '').to_i  # number of data bytes
   data = columns[4..(4+len)].join()
 
-  { time: time, prio: prio, dgn: dgn, src: src, len: len, data: data }
+  { time: time, prio: prio, dgn: dgn_str, src: src, len: len, data: data }
 end
 
-
-#################################################################
 #
 # Main program entry
 #

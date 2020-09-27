@@ -45,20 +45,20 @@ components may be developed at a future date.
 Requirements
 ------------
 
-A computer with a CAN bus network card. This will almost certainly be a
+* A computer with a CAN bus network card. This will almost certainly be a
 Raspberry Pi 3B computer with a PiCAN2 board.
 
-The latest Raspberry Pi OS operating system image (Buster Lite is used for
+* The latest Raspberry Pi OS operating system image (Buster Lite is used for
 development).
 
-The Ruby development environment and supporting Gems:
+* The Ruby development environment and supporting Gems:
 
 ~~~
 sudo apt -y install ruby-dev
 sudo gem install json yaml mqtt
 ~~~
 
-An MQTT message broker to communicate with. Often this will run on the same
+* An MQTT message broker to communicate with. Often this will run on the same
 Raspberry Pi, and can be installed easily:
 
 ~~~
@@ -66,6 +66,8 @@ sudo apt -y install mosquitto
 ~~~
 
 # Software Documentation
+
+(more details coming soon)
 
 RV-C Decoding
 -------------
@@ -75,7 +77,11 @@ decodes all RV-C messages, and publishes the decoded result to an MQTT
 server. The `rvc-spec.yaml` file provides the instructions for decoding
 the RV-C spec.
 
-(more details coming soon)
+A great way to view the decoded messages is with the [MQTT Explorer](http://mqtt-explorer.com/)
+application. Just connect to the MQTT broker and monitor all the RV-C
+messages decoded from the CAN bus.
+
+![MQTT Explorer Sample](images/mqtt_explorer.png?raw=true)
 
 RV-C Control
 ------------

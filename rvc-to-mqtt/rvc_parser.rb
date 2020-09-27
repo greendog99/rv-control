@@ -1,8 +1,7 @@
 require 'yaml'
-require './bitmath'
+require_local 'bitmath'
 
 class RVCParser
-
   @@rvc_spec_location = 'rvc-spec.yaml'
 
   def initialize()
@@ -15,14 +14,11 @@ class RVCParser
     @rvc_spec = YAML.load(yaml_data)
   end
 
-
   public
-
 
   def api_version
     @rvc_spec['API_VERSION']
   end
-
 
   def decode(dgn, data)
     result = {}
@@ -71,7 +67,6 @@ class RVCParser
 
     return result
   end
-
 
   protected
 
@@ -178,7 +173,6 @@ class RVCParser
     if ['pct', 'deg_c', 'v', 'a', 'hz', 'bitmap'].include?(unit)
       value = self.method("convert_" + unit).call(value, type)
     end
-
     value
   end
 
