@@ -4,6 +4,8 @@ A re-write from scratch of
 [CoachProxyOS](https://github.com/rvc-proxy/coachproxy-os/)
 scripts to monitor and send RV-C messages.
 
+![System Overview Diagram](images/rv_control_diagram.png?raw=true)
+
 Raspberry Pi 3B Setup
 ---------------------
 
