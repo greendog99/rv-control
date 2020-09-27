@@ -1,5 +1,12 @@
+# A class to manipulate data based on the RV-C specification.
+# The `rvc-spec.yaml` file contains a machine-readable version of
+# the specification, hand transcribed from the RV-C pdf file. It
+# describes the meaning of each byte and bit in the data packet for
+# each data group.
+
 require 'yaml'
 require_relative 'bitmath'
+require_relative 'string'
 
 class RVCParser
   @@rvc_spec_location = 'rvc-spec.yaml'
@@ -7,9 +14,9 @@ class RVCParser
   def initialize()
     yaml_data = File.read(@@rvc_spec_location)
 
-    # Some keys in the yaml file are bitfields (e.g. 001) and need to
-    # be parsed as strings instead of integers, to avoid losing the
-    # leading zeros. Add quotes around all keys that begin with a digit.
+    # Some keys in the yaml file are bitfields (e.g. 001) and need to be parsed
+    # as strings instead of integers, to avoid losing the leading zeros. This
+    # adds quotes around all keys that begin with a digit.
     yaml_data = yaml_data.gsub(/(\s)(\d+):/, '\1"\2":')
     @rvc_spec = YAML.load(yaml_data)
   end
@@ -38,11 +45,12 @@ class RVCParser
 
     # Loop through each parameter and decode it.
     params.each do |param|
-      byte_range = str_to_range param['byte']
-      bit_range  = str_to_range param['bit']
-      name = sanitize_string param['name']
+      ### TODO: ensure the param is a string, not an integer?
+      byte_range = param['byte'].to_s.to_range
+      bit_range  = param['bit'].to_s.to_range
+      name = param['name']&.rvc_parameter
+      unit = param['unit']&.rvc_parameter
       type = param['type'] || 'uint'
-      unit = sanitize_string param['unit']
 
       value = hex_byterange(data, byte_range)
       if bit_range
@@ -70,34 +78,6 @@ class RVCParser
 
   protected
 
-  # Convert a DGN's name to something more computer-friendly.
-  #
-  #   "Manufacturer Code (LSB) in/out" => "manufacturer_code_lsb_in_out"
-  def sanitize_string(str)
-    str ? str.downcase.tr(' /', '_').tr('()', '') : nil
-  end
-
-  # Reverse a hex string's endianness.
-  #
-  #   "ABCD" => "CDAB"
-  def flip_hex_bytes(hex)
-    hex.scan(/../).reverse.join('')
-  end
-
-  # Convert a string representation of a number or numeric range into a
-  # Ruby Range object:
-  #
-  #   "2"   => 2..2
-  #   "2-4" => 2..4
-  def str_to_range(str)
-    return nil if !str
-
-    str = str.to_s    # Just in case a single integer is passed in
-    first, last = str.split(/-/).map { |val| val.to_i }
-    last ||= first
-    first..last
-  end
-
   # Take a hex string (e.g. "020064C524C52400") and a byte range (e.g. 2..4 and
   # return the decimal value for those bytes. Per RV-C spec, "data consisting of
   # two or more bytes shall be transmitted least significant byte first." Thus,
@@ -106,7 +86,7 @@ class RVCParser
   # doubled in scope (bytes 0-1 are characters 0-3 in the hex string).
   def hex_byterange(data, range)
     byte_range = (range.begin * 2)..(range.end * 2 + 1)
-    flip_hex_bytes(data[byte_range]).hex
+    data[byte_range].reverse_endianness.hex
   end
 
   # Convert raw value to RVC percentage.

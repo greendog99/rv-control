@@ -7,10 +7,9 @@ require 'yaml'
 require 'json'
 require 'mqtt'
 require 'open3'
-require_relative 'rvc_parser'
-require_relative 'bitmath'
+require_relative 'lib/rvc_parser'
+require_relative 'lib/bitmath'
 
-rvc_spec_location = './rvc-spec.yml'
 mqtt_address = 'r2'
 
 # Parse the text output of candump and decode various information as
