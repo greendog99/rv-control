@@ -1,5 +1,9 @@
 # RV Control
 
+**Note: This Ruby implementation is no longer being developed. Please see
+[RVC-Monitor-Py](https://github.com/linuxkidd/rvc-monitor-py) for the Python
+implementation.**
+
 This project's goal is to enable two-way communication between an RV's CAN bus
 network and an MQTT message broker. It is not meant to be an end-to-end RV
 control or automation solution, but rather a foundation which other tools and
